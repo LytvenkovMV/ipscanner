@@ -5,11 +5,12 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.cert.Certificate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class IpScanner implements Runnable {
@@ -42,21 +43,24 @@ public class IpScanner implements Runnable {
     @Override
     public void run() {
 
+        Pattern domainPattern = Pattern.compile("CN=([^,]*)");
         StringBuffer results = new StringBuffer();
-        String outputFile = "ipscanner_output_" + threadId + ".txt";
+        String outputFileName = "ipscanner_output_" + threadId + ".txt";
 
         int subnetSize = (int) Math.pow(2, (32 - subnetMask));
         int subnetsPerThread = subnetSize / numThreads;
 
         for (int i = threadId * subnetsPerThread; i < (threadId + 1) * subnetsPerThread; i++) {
 
-            String currIp = baseIP;
+            String currIp = null;
+            long longCurrIp;
             URL destinationURL;
             HttpsURLConnection conn;
             Certificate[] certs = new Certificate[0];
 
             try {
-                currIp = calcCurrIp(baseIP, i);
+                longCurrIp = IpConverter.stringToLong(baseIP) + i;
+                currIp = IpConverter.longToString(longCurrIp);
                 log.info("Start scan " + currIp);
                 destinationURL = new URL("https://" + currIp);
                 conn = (HttpsURLConnection) destinationURL.openConnection();
@@ -77,43 +81,31 @@ public class IpScanner implements Runnable {
 
             for (Certificate cert : certs) {
 
-                results.append("\n");
-                results.append("Thread " + threadId + ": " + "Certificate on " + currIp + "\n");
-                results.append("********************************************************" + "\n");
-                results.append("********************************************************" + "\n");
-                results.append("********************** CERTIFICATE *********************" + "\n");
-                results.append("********************************************************" + "\n");
-                results.append("********************************************************" + "\n");
-                results.append("\n");
-                results.append(cert.toString());
+                String stringCert = cert.toString();
+                Matcher matcher = domainPattern.matcher(stringCert);
+                while (matcher.find()) {
+                    results.append(matcher.group(1));
+                    results.append("\n");
+                }
+
+
+//                results.append("\n");
+//                results.append("Thread " + threadId + ": " + "Certificate on " + currIp + "\n");
+//                results.append("********************************************************" + "\n");
+//                results.append("********************************************************" + "\n");
+//                results.append("********************** CERTIFICATE *********************" + "\n");
+//                results.append("********************************************************" + "\n");
+//                results.append("********************************************************" + "\n");
+//                results.append("\n");
+//                results.append(cert.toString());
             }
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
             writer.write(results.toString());
             log.info("Finished");
         } catch (IOException e) {
             log.info("Can't write to file");
         }
-    }
-
-
-    private String calcCurrIp(String baseIp, int currIndex) throws UnknownHostException {
-
-        /* Convert base IP from string to long */
-        String[] ipAddressInArray = baseIp.split("\\.");
-        long longBaseIp = 0;
-        for (int i = 0; i < ipAddressInArray.length; i++) {
-            int power = 3 - i;
-            int ip = Integer.parseInt(ipAddressInArray[i]);
-            longBaseIp += ip * Math.pow(256, power);
-        }
-
-        /* Increment IP */
-        long longCurrIp = longBaseIp + currIndex;
-
-        /* Convert IP from long to string */
-        InetAddress inetAddress = InetAddress.getByName(String.valueOf(longCurrIp));
-        return inetAddress.getHostAddress();
     }
 }
