@@ -19,18 +19,20 @@
             <div class="fs-5">ИНСТРУКЦИЯ</div>
             <div class="fs-6">
                 1. Заполните форму ниже. Все поля обязательны.<br>
-                2. Введите начальный IP адрес и диапазон. Допустимые значения: 0-255.<br>
-                3. Выберите количество потоков.<br>
-                4. Нажмите кнопку СТАРТ.<br>
-                5. Программа найдет все SSL сертификаты по заданным адресам и найдет в них все доменные имена.<br>
-                6. Список найденных доменных имен будет сохранен в файле.<br>
+                2. Введите начальный IP адрес. Допустимые значения: 0-255.<br>
+                3. Выберите префикс маски подсети (диапазон сканирования).<br>
+                4. Выберите количество потоков.<br>
+                5. Выберите диск для сохранения результатов сканирования.<br>
+                6. Нажмите кнопку СТАРТ.<br>
+                7. Программа найдет все SSL сертификаты по заданным адресам и найдет в них все доменные имена.<br>
+                8. Список найденных доменных имен будет сохранен в корневом каталоге диска.<br>
             </div>
         </div>
     </div>
 </div>
 
 <div class="container">
-    <form action="/request" method="post">
+    <form action="/result" method="post">
         <div class="col-sm-6">
             <div class="input-group mt-6 mb-3">
                 <span class="input-group-text">Начальный IP адрес и диапазон</span>
@@ -60,25 +62,45 @@
             </div>
         </div>
 
-        <div class="col-sm-3">
-            <div class="input-group mb-3">
-                <label class="input-group-text" for="threats">Количество потоков</label>
-                <select class="form-select" id="threats" name="threats" required>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                </select>
+        <div class="row mt-3 mb-3">
+            <div class="col-sm-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="threats">Количество потоков</label>
+                    <select class="form-select" id="threats" name="threats" required>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="disk">Системный диск</label>
+                    <select class="form-select" id="disk" name="disk" required>
+                        <option value="C">C:/</option>
+                        <option value="D">D:/</option>
+                        <option value="E">E:/</option>
+                        <option value="F">F:/</option>
+                        <option value="G">G:/</option>
+                        <option value="H">H:/</option>
+                        <option value="I">I:/</option>
+                        <option value="J">J:/</option>
+                        <option value="K">K:/</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <button type="submit" class="btn btn-primary mb-3">СТАРТ</button>
+        <button type="reset" class="btn btn-primary mb-3 ms-2">СБРОС</button>
     </form>
 </div>
 

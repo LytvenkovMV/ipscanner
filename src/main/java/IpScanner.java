@@ -9,8 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.cert.Certificate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 public class IpScanner implements Runnable {
@@ -29,22 +27,11 @@ public class IpScanner implements Runnable {
     }
 
 
-    public static boolean validateInput(InputDto inputDto) {
-        if (inputDto.getIpByte0() < 0 || inputDto.getIpByte0() > 255) return false;
-        if (inputDto.getIpByte1() < 0 || inputDto.getIpByte1() > 255) return false;
-        if (inputDto.getIpByte2() < 0 || inputDto.getIpByte2() > 255) return false;
-        if (inputDto.getIpByte3() < 0 || inputDto.getIpByte3() > 255) return false;
-        if (inputDto.getSubnetMask() < 0 || inputDto.getSubnetMask() > 32) return false;
-        if (inputDto.getNumThreads() < 1 || inputDto.getNumThreads() > 10) return false;
-        return true;
-    }
-
-
     @Override
     public void run() {
 
         StringBuffer results = new StringBuffer();
-        String outputFileName = "ipscanner_output_" + threadId + ".txt";
+        String outputPath = "output_" + threadId + ".txt";
 
         int subnetSize = (int) Math.pow(2, (32 - subnetMask));
         int subnetsPerThread = subnetSize / numThreads;
@@ -56,6 +43,7 @@ public class IpScanner implements Runnable {
             URL destinationURL;
             HttpsURLConnection conn;
             Certificate[] certs = new Certificate[0];
+            DomainMatcher domainMatcher = new DomainMatcher();
 
             try {
                 longCurrIp = IpConverter.stringToLong(baseIP) + i;
@@ -79,26 +67,11 @@ public class IpScanner implements Runnable {
             }
 
             for (Certificate cert : certs) {
-
-                results.append(DomainMatcher.find(cert.toString()));
-                results.append("********************************************************" + "\n");
-                results.append("********************** CERTIFICATE *********************" + "\n");
-                results.append("********************************************************" + "\n");
-                results.append(cert.toString());
+                results.append(domainMatcher.find(cert.toString()));
             }
         }
 
-
-
-
-
-        System.out.println(results);
-
-
-
-
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
             writer.write(results.toString());
             log.info("Finished");
         } catch (IOException e) {

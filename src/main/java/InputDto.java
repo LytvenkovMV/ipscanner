@@ -13,4 +13,5 @@ public class InputDto {
     private Integer ipByte0;
     private Integer subnetMask;
     private Integer numThreads;
+    private String disk;
 }
