@@ -1,9 +1,14 @@
 import io.javalin.http.Handler;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class Controller {
 
     public static Handler showStartPage = ctx -> {
@@ -12,6 +17,8 @@ public class Controller {
 
 
     public static Handler showResultPage = ctx -> {
+
+        log.info("Scanner start");
 
         InputDto inputDto = new InputDto();
         try {
@@ -41,6 +48,29 @@ public class Controller {
         }
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
+        String output = new String();
+        for (int i = 0; i < numThreads; i++) {
+            String path = "/ipscanner_output_" + i + ".txt";
+            output.concat(Reader.read(path));
+
+
+
+
+            log.info(i+":");
+            log.info(output);
+
+
+
+
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("ipscanner_output.txt"))) {
+            writer.write(output);
+            log.info("All done");
+        } catch (IOException e) {
+            log.info("Can't write to file");
+        }
 
         ctx.html(Reader.read("src/main/webapp/view/result.html"));
     };

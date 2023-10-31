@@ -56,6 +56,7 @@ public class IpScanner implements Runnable {
             URL destinationURL;
             HttpsURLConnection conn;
             Certificate[] certs = new Certificate[0];
+            DomainMatcher domainMatcher = new DomainMatcher();
 
             try {
                 longCurrIp = IpConverter.stringToLong(baseIP) + i;
@@ -79,24 +80,9 @@ public class IpScanner implements Runnable {
             }
 
             for (Certificate cert : certs) {
-
-                results.append(DomainMatcher.find(cert.toString()));
-                results.append("********************************************************" + "\n");
-                results.append("********************** CERTIFICATE *********************" + "\n");
-                results.append("********************************************************" + "\n");
-                results.append(cert.toString());
+                results.append(domainMatcher.find(cert.toString()));
             }
         }
-
-
-
-
-
-        System.out.println(results);
-
-
-
-
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
             writer.write(results.toString());

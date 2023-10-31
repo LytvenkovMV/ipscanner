@@ -3,13 +3,21 @@ import java.util.regex.Pattern;
 
 public class DomainMatcher {
 
-    private static final String regex = "\\s((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}";
+    private static final String regex = "((?!-)[a-z0-9-]{2,63}(?<!-)\\.)+[a-z]{2,6}";
+    private Pattern pattern;
 
-    public static StringBuffer find(String input) {
+    public DomainMatcher() {
+        this.pattern = Pattern.compile(this.regex);
+    }
+
+    public DomainMatcher(String userRegex) {
+        this.pattern = Pattern.compile(userRegex);
+    }
+
+    public StringBuffer find(String input) {
 
         StringBuffer output = new StringBuffer();
-        Pattern domainPattern = Pattern.compile(regex);
-        Matcher matcher = domainPattern.matcher(input);
+        Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
             output.append(matcher.group());
             output.append("\n");
